@@ -4,10 +4,13 @@ from flask import Flask, jsonify, json, render_template, request, url_for, redir
 from werkzeug.exceptions import abort
 import logging
 
+db_connection_count = 0
+
 # Function to get a database connection.
 # This function connects to database with the name `database.db`
 def get_db_connection():
     connection = sqlite3.connect('database.db')
+    db_connection_count += 1
     connection.row_factory = sqlite3.Row
     return connection
 
@@ -84,7 +87,7 @@ def metrics():
     connection = get_db_connection()
     posts = connection.execute('SELECT * FROM posts').fetchall()
     data = {
-        'db_connection_count': 1,
+        'db_connection_count': db_connection_count,
         'post_count': len(posts)
     }
     app.logger.info('Metrics request successful')
